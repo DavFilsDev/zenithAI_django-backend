@@ -1,12 +1,13 @@
-function App() {
+import { BrowserRouter } from 'react-router-dom';
+import Header from './components/Header';
 
-    return (
-    <div className="bg-gray-100 min-h-screen p-8">
-      <h1 className="text-3xl font-bold text-blue-600">
-        Zenith ChatAI
-      </h1>
-    </div>
-  )
+function App() {
+  return (
+    <BrowserRouter>
+      <Header />
+      {/* other routes */}
+    </BrowserRouter>
+  );
 }
 
 export default App
