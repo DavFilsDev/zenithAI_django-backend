@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'rest_framework_simplejwt',
+    'drf_spectacular',
     
     # Local apps
     'users',
@@ -117,6 +118,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+        'DEFAULT_SCHEMA_CLASS': [
+        'drf_spectacular.openapi.AutoSchema',
+    ],
 }
 
 # JWT Settings
@@ -125,6 +129,15 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
+}
+
+# Spectacular settings
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Zenith AI API',
+    'DESCRIPTION': 'ZenithAI platform API',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
 }
 
 # Custom User Model
