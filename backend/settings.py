@@ -118,9 +118,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-        'DEFAULT_SCHEMA_CLASS': [
-        'drf_spectacular.openapi.AutoSchema',
-    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 # JWT Settings
@@ -134,10 +132,36 @@ SIMPLE_JWT = {
 # Spectacular settings
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Zenith AI API',
-    'DESCRIPTION': 'ZenithAI platform API',
+    'DESCRIPTION': '''
+    Zenith AI is a ChatGPT-like platform API built with Django REST Framework.
+    
+    ## Features
+    - User authentication with JWT
+    - Conversation management
+    - Message history
+    - Credit system for API usage
+    
+    ## Authentication
+    Most endpoints require JWT authentication via Bearer token.
+    Obtain tokens via `/api/auth/token/` endpoint.
+    ''',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_REQUEST': True,
+    
+    # Swagger UI settings
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'persistAuthorization': True,
+        'displayOperationId': True,
+    },
+    
+    # API metadata
+    'TAGS': [
+        {'name': 'Authentication', 'description': 'User registration and login'},
+        {'name': 'Users', 'description': 'User profile management'},
+        {'name': 'Chat', 'description': 'Conversations and messages'},
+    ],
 }
 
 # Custom User Model
