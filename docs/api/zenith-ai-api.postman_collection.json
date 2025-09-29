@@ -23,7 +23,7 @@
             "url": {
               "raw": "{{base_url}}/api/auth/register/",
               "host": ["{{base_url}}"],
-              "path": ["api", "auth", "register"]
+              "path": ["api", "auth", "register", ""]
             },
             "body": {
               "mode": "raw",
