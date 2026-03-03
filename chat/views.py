@@ -108,11 +108,127 @@ class ConversationListView(generics.ListCreateAPIView):
         return self.create(request, *args, **kwargs)
 
 class ConversationDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update, or delete a specific conversation.
+    
+    **GET**: Returns the conversation with all its messages.
+    - Messages are ordered chronologically
+    - Includes message count and full message history
+    
+    **PUT/PATCH**: Update the conversation title.
+    
+    **DELETE**: Delete the conversation and all its messages.
+    
+    Note: Users can only access their own conversations.
+    """
     serializer_class = ConversationSerializer
     permission_classes = (permissions.IsAuthenticated,)
     
     def get_queryset(self):
+        """Ensure users can only access their own conversations"""
         return Conversation.objects.filter(user=self.request.user)
+    
+    @extend_schema(
+        summary="Get conversation details",
+        description="Retrieve a specific conversation with all its messages",
+        responses={
+            200: OpenApiResponse(
+                response=ConversationSerializer,
+                description="Conversation details retrieved successfully"
+            ),
+            401: OpenApiResponse(
+                description="Authentication required"
+            ),
+            403: OpenApiResponse(
+                description="You don't have permission to access this conversation"
+            ),
+            404: OpenApiResponse(
+                description="Conversation not found"
+            ),
+        },
+        examples=[
+            OpenApiExample(
+                'Successful Response',
+                value={
+                    'id': 1,
+                    'title': 'My First Conversation',
+                    'created_at': '2026-03-03T10:00:00Z',
+                    'updated_at': '2026-03-03T10:06:00Z',
+                    'message_count': 2,
+                    'messages': [
+                        {
+                            'id': 1,
+                            'role': 'user',
+                            'content': 'What is Django?',
+                            'tokens': 0,
+                            'created_at': '2026-03-03T10:04:00Z'
+                        },
+                        {
+                            'id': 2,
+                            'role': 'assistant',
+                            'content': 'Django is a Python web framework...',
+                            'tokens': 0,
+                            'created_at': '2026-03-03T10:04:01Z'
+                        }
+                    ]
+                },
+                response_only=True,
+            ),
+        ],
+        tags=['Chat']
+    )
+    def get(self, request, *args, **kwargs):
+        """Get conversation details"""
+        return self.retrieve(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Update conversation",
+        description="Update the title of a conversation",
+        request=ConversationSerializer,
+        responses={
+            200: ConversationSerializer,
+            400: OpenApiResponse(description="Invalid data"),
+            401: OpenApiResponse(description="Authentication required"),
+            403: OpenApiResponse(description="Permission denied"),
+            404: OpenApiResponse(description="Conversation not found"),
+        },
+        examples=[
+            OpenApiExample(
+                'Update Request',
+                value={
+                    'title': 'Updated Conversation Title'
+                },
+                request_only=True,
+            ),
+        ],
+        tags=['Chat']
+    )
+    def put(self, request, *args, **kwargs):
+        """Update conversation title"""
+        return self.update(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Delete conversation",
+        description="Delete a conversation and all its messages",
+        responses={
+            204: OpenApiResponse(
+                description="Conversation deleted successfully"
+            ),
+            401: OpenApiResponse(
+                description="Authentication required"
+            ),
+            403: OpenApiResponse(
+                description="Permission denied"
+            ),
+            404: OpenApiResponse(
+                description="Conversation not found"
+            ),
+        },
+        tags=['Chat']
+    )
+    def delete(self, request, *args, **kwargs):
+        """Delete conversation"""
+        return self.destroy(request, *args, **kwargs)
 
 class ChatView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
