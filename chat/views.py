@@ -5,7 +5,8 @@ from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
 import openai
 import os
-from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample, OpenApiResponse
+from drf_spectacular.types import OpenApiTypes
 
 class ConversationListView(generics.ListCreateAPIView):
     """
@@ -231,9 +232,136 @@ class ConversationDetailView(generics.RetrieveUpdateDestroyAPIView):
         return self.destroy(request, *args, **kwargs)
 
 class ChatView(APIView):
+    """
+    Handle chat messages and AI interactions.
+    
+    This endpoint processes user messages and returns AI responses.
+    It can create new conversations or continue existing ones.
+    
+    **Flow:**
+    1. Receive user message
+    2. Find or create conversation
+    3. Save user message to database
+    4. Generate AI response (simulated or real)
+    5. Save AI response
+    6. Return AI message data
+    """
     permission_classes = (permissions.IsAuthenticated,)
     
+    @extend_schema(
+        summary="Send a message to the AI",
+        description="""
+        Send a message to the AI and receive a response.
+        
+        **If conversation_id is provided:**
+        - Continues an existing conversation
+        - Message is added to that conversation's history
+        
+        **If no conversation_id:**
+        - Creates a new conversation
+        - Uses the first 50 characters of your message as the title
+        - Returns the AI response with the new conversation context
+        
+        The AI response is currently simulated. Future versions will integrate
+        with actual OpenAI API for real responses.
+        """,
+        parameters=[
+            OpenApiParameter(
+                name='conversation_id',
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+                description='ID of existing conversation (optional). If not provided, creates new conversation.',
+                required=False,
+            ),
+        ],
+        request=OpenApiExample(
+            'Message Request',
+            value={
+                'message': 'What is the capital of France?',
+            },
+            description='JSON object containing the user message',
+        ),
+        responses={
+            200: OpenApiResponse(
+                response=MessageSerializer,
+                description='AI response message (simulated)',
+                examples=[
+                    OpenApiExample(
+                        'Successful Response',
+                        value={
+                            'id': 1,
+                            'role': 'assistant',
+                            'content': 'This is a simulated response. Integrate with OpenAI API for real responses.',
+                            'tokens': 0,
+                            'created_at': '2026-03-03T10:30:00Z'
+                        }
+                    )
+                ]
+            ),
+            201: OpenApiResponse(
+                description='New conversation created with AI response',
+                response=MessageSerializer,
+            ),
+            400: OpenApiResponse(
+                description='Bad request - message field is required',
+                examples=[
+                    OpenApiExample(
+                        'Missing Message',
+                        value={'error': 'Message is required'}
+                    )
+                ]
+            ),
+            401: OpenApiResponse(
+                description='Authentication credentials not provided',
+            ),
+            404: OpenApiResponse(
+                description='Conversation not found or does not belong to user',
+                examples=[
+                    OpenApiExample(
+                        'Conversation Not Found',
+                        value={'error': 'Conversation not found'}
+                    )
+                ]
+            ),
+            500: OpenApiResponse(
+                description='Internal server error during AI response generation',
+                examples=[
+                    OpenApiExample(
+                        'Server Error',
+                        value={'error': 'Error details here'}
+                    )
+                ]
+            ),
+        },
+        examples=[
+            OpenApiExample(
+                'New Conversation',
+                summary='Start a new conversation',
+                description='Send message without conversation_id to create new chat',
+                value={'message': 'Hello, who are you?'},
+                request_only=True,
+            ),
+            OpenApiExample(
+                'Continue Conversation',
+                summary='Continue existing conversation',
+                description='Include conversation_id to add to existing chat',
+                value={'message': 'Tell me more about that'},
+                request_only=True,
+            ),
+        ],
+        tags=['Chat']
+    )
     def post(self, request, conversation_id=None):
+        """
+        Process a chat message and return AI response.
+        
+        Args:
+            request: HTTP request object containing message data
+            conversation_id: Optional ID of existing conversation
+            
+        Returns:
+            Response: AI message data or error message
+        """
         user_message = request.data.get('message')
         if not user_message:
             return Response({'error': 'Message is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -262,11 +390,11 @@ class ChatView(APIView):
         )
         
         try:
-            # Get conversation history
+            # Get conversation history for context
             messages = Message.objects.filter(conversation=conversation)
             chat_history = [{'role': msg.role, 'content': msg.content} for msg in messages]
             
-            # Here you would integrate with OpenAI API
+            # TODO: Integrate with actual OpenAI API
             # For now, we'll simulate a response
             ai_response = "This is a simulated response. Integrate with OpenAI API for real responses."
             
@@ -278,7 +406,10 @@ class ChatView(APIView):
             )
             
             serializer = MessageSerializer(ai_msg)
-            return Response(serializer.data)
+            
+            # Return 201 if new conversation was created, 200 otherwise
+            status_code = status.HTTP_201_CREATED if not conversation_id else status.HTTP_200_OK
+            return Response(serializer.data, status=status_code)
             
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
