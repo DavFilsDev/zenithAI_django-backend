@@ -4,8 +4,30 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer, RegisterSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 User = get_user_model()
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data['user_id'] = self.user.id
+        data['email'] = self.user.email
+        data['username'] = self.user.username
+        data['credits'] = self.user.credits
+        data['is_premium'] = self.user.is_premium
+        return data
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+    
+    @extend_schema(
+        summary="Login - Get JWT Tokens",
+        description="Authenticate with email/password to receive access and refresh tokens",
+        tags=['Authentication']
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
 class RegisterView(generics.CreateAPIView):
     """
