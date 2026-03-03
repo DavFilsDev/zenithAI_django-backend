@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse, OpenApiExample
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer, RegisterSerializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -71,8 +71,88 @@ class RegisterView(generics.CreateAPIView):
         return super().post(request, *args, **kwargs)
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
+    """
+    Retrieve or update the authenticated user's profile.
+    
+    **GET**: Returns the profile of the currently authenticated user.
+    **PUT/PATCH**: Updates the user's profile information.
+    
+    Requires authentication via JWT token in Authorization header.
+    """
     serializer_class = UserSerializer
     permission_classes = (permissions.IsAuthenticated,)
     
     def get_object(self):
+        """Return the current authenticated user"""
         return self.request.user
+    
+    @extend_schema(
+        summary="Get user profile",
+        description="Retrieve the profile of the currently authenticated user",
+        responses={
+            200: OpenApiResponse(
+                response=UserSerializer,
+                description="Profile retrieved successfully"
+            ),
+            401: OpenApiResponse(
+                description="Authentication credentials not provided or invalid"
+            ),
+        },
+        examples=[
+            OpenApiExample(
+                'Successful Response',
+                value={
+                    'id': 1,
+                    'email': 'user@example.com',
+                    'username': 'johndoe',
+                    'credits': 10,
+                    'is_premium': False
+                },
+                response_only=True,
+            ),
+        ],
+        tags=['Users']
+    )
+    def get(self, request, *args, **kwargs):
+        """Get current user profile"""
+        return self.retrieve(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Update user profile",
+        description="Update the authenticated user's profile information",
+        request=UserSerializer,
+        responses={
+            200: UserSerializer,
+            400: OpenApiResponse(description="Invalid data provided"),
+            401: OpenApiResponse(description="Authentication required"),
+        },
+        examples=[
+            OpenApiExample(
+                'Update Request',
+                value={
+                    'username': 'newusername',
+                    'email': 'newemail@example.com'
+                },
+                request_only=True,
+            ),
+        ],
+        tags=['Users']
+    )
+    def put(self, request, *args, **kwargs):
+        """Update current user profile"""
+        return self.update(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Partially update user profile",
+        description="Partially update the authenticated user's profile information",
+        request=UserSerializer,
+        responses={
+            200: UserSerializer,
+            400: OpenApiResponse(description="Invalid data provided"),
+            401: OpenApiResponse(description="Authentication required"),
+        },
+        tags=['Users']
+    )
+    def patch(self, request, *args, **kwargs):
+        """Partially update current user profile"""
+        return self.partial_update(request, *args, **kwargs)
