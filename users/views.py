@@ -24,7 +24,12 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     @extend_schema(
         summary="Login - Get JWT Tokens",
         description="Authenticate with email/password to receive access and refresh tokens",
-        tags=['Authentication']
+        tags=['Authentication'],
+        request=TokenObtainPairSerializer,
+        responses={
+            200: OpenApiResponse(description="Login successful"),
+            401: OpenApiResponse(description="Invalid credentials"),
+        }
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
