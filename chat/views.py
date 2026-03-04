@@ -132,6 +132,7 @@ class ConversationDetailView(generics.RetrieveUpdateDestroyAPIView):
     @extend_schema(
         summary="Get conversation details",
         description="Retrieve a specific conversation with all its messages",
+        tags=['Chat'],
         responses={
             200: OpenApiResponse(
                 response=ConversationSerializer,
@@ -175,8 +176,7 @@ class ConversationDetailView(generics.RetrieveUpdateDestroyAPIView):
                 },
                 response_only=True,
             ),
-        ],
-        tags=['Chat']
+        ]
     )
     def get(self, request, *args, **kwargs):
         """Get conversation details"""
@@ -185,6 +185,7 @@ class ConversationDetailView(generics.RetrieveUpdateDestroyAPIView):
     @extend_schema(
         summary="Update conversation",
         description="Update the title of a conversation",
+        tags=['Chat'],
         request=ConversationSerializer,
         responses={
             200: ConversationSerializer,
@@ -201,8 +202,7 @@ class ConversationDetailView(generics.RetrieveUpdateDestroyAPIView):
                 },
                 request_only=True,
             ),
-        ],
-        tags=['Chat']
+        ]
     )
     def put(self, request, *args, **kwargs):
         """Update conversation title"""
@@ -211,6 +211,7 @@ class ConversationDetailView(generics.RetrieveUpdateDestroyAPIView):
     @extend_schema(
         summary="Delete conversation",
         description="Delete a conversation and all its messages",
+        tags=['Chat'],
         responses={
             204: OpenApiResponse(
                 description="Conversation deleted successfully"
@@ -224,8 +225,7 @@ class ConversationDetailView(generics.RetrieveUpdateDestroyAPIView):
             404: OpenApiResponse(
                 description="Conversation not found"
             ),
-        },
-        tags=['Chat']
+        }
     )
     def delete(self, request, *args, **kwargs):
         """Delete conversation"""
