@@ -34,6 +34,7 @@ class ConversationListView(generics.ListCreateAPIView):
     @extend_schema(
         summary="List all conversations",
         description="Retrieve all conversations for the authenticated user, ordered by most recent",
+        tags=['Chat'],
         responses={
             200: OpenApiResponse(
                 response=ConversationSerializer(many=True),
@@ -58,8 +59,7 @@ class ConversationListView(generics.ListCreateAPIView):
                 ],
                 response_only=True,
             ),
-        ],
-        tags=['Chat']
+        ]
     )
     def get(self, request, *args, **kwargs):
         """List user's conversations"""
@@ -68,6 +68,7 @@ class ConversationListView(generics.ListCreateAPIView):
     @extend_schema(
         summary="Create a new conversation",
         description="Create a new conversation with the specified title",
+        tags=['Chat'],
         request=ConversationSerializer,
         responses={
             201: OpenApiResponse(
@@ -101,8 +102,7 @@ class ConversationListView(generics.ListCreateAPIView):
                 },
                 response_only=True,
             ),
-        ],
-        tags=['Chat']
+        ]
     )
     def post(self, request, *args, **kwargs):
         """Create a new conversation"""
