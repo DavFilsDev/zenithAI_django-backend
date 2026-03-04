@@ -43,6 +43,7 @@ class RegisterView(generics.CreateAPIView):
     @extend_schema(
         summary="Register new user",
         description="Create a new user account with email and password",
+        tags=['Authentication'],
         request=RegisterSerializer,
         responses={
             201: UserSerializer,
