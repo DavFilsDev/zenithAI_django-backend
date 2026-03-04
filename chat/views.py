@@ -265,6 +265,7 @@ class ChatView(APIView):
         The AI response is currently simulated. Future versions will integrate
         with actual OpenAI API for real responses.
         """,
+        tags=['Chat'],
         parameters=[
             OpenApiParameter(
                 name='conversation_id',
@@ -348,8 +349,7 @@ class ChatView(APIView):
                 value={'message': 'Tell me more about that'},
                 request_only=True,
             ),
-        ],
-        tags=['Chat']
+        ]
     )
     def post(self, request, conversation_id=None):
         """
