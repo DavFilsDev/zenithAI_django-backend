@@ -95,6 +95,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     @extend_schema(
         summary="Get user profile",
         description="Retrieve the profile of the currently authenticated user",
+        tags=['Users'],
         responses={
             200: OpenApiResponse(
                 response=UserSerializer,
@@ -116,8 +117,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
                 },
                 response_only=True,
             ),
-        ],
-        tags=['Users']
+        ]
     )
     def get(self, request, *args, **kwargs):
         """Get current user profile"""
@@ -126,6 +126,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     @extend_schema(
         summary="Update user profile",
         description="Update the authenticated user's profile information",
+        tags=['Users'],
         request=UserSerializer,
         responses={
             200: UserSerializer,
@@ -141,8 +142,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
                 },
                 request_only=True,
             ),
-        ],
-        tags=['Users']
+        ]
     )
     def put(self, request, *args, **kwargs):
         """Update current user profile"""
@@ -151,13 +151,13 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     @extend_schema(
         summary="Partially update user profile",
         description="Partially update the authenticated user's profile information",
+        tags=['Users'],
         request=UserSerializer,
         responses={
             200: UserSerializer,
             400: OpenApiResponse(description="Invalid data provided"),
             401: OpenApiResponse(description="Authentication required"),
-        },
-        tags=['Users']
+        }
     )
     def patch(self, request, *args, **kwargs):
         """Partially update current user profile"""
