@@ -1,6 +1,6 @@
 # Backend Repository README
 
-## ChatGPT-like Platform - Backend (Django + PostgreSQL)
+## Chatbot Platform - Backend (Django + PostgreSQL)
 
 ### 🚀 Quick Start
 
@@ -103,6 +103,13 @@ docker-compose down -v
 | GET | `/api/chat/conversations/{id}/` | Conversation detail | Yes |
 | POST | `/api/chat/chat/` | Send message (new conversation) | Yes |
 | POST | `/api/chat/chat/{id}/` | Send message (existing conversation) | Yes |
+
+### 🔌 API Documentation
+
+- **📊 Interactive API Testing**: [Swagger UI](/api/docs/)
+- **📖 Readable Reference**: [ReDoc](/api/redoc/)
+- **📋 OpenAPI Schema**: [schema.json](/api/schema/)
+
 
 ### 🔐 Authentication
 
