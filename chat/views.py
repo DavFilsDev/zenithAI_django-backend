@@ -230,6 +230,32 @@ class ConversationDetailView(generics.RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         """Delete conversation"""
         return self.destroy(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Partially update conversation",
+        description="Partially update a conversation title (PATCH)",
+        tags=['Chat'],
+        request=ConversationSerializer,
+        responses={
+            200: ConversationSerializer,
+            400: OpenApiResponse(description="Invalid data"),
+            401: OpenApiResponse(description="Authentication required"),
+            403: OpenApiResponse(description="Permission denied"),
+            404: OpenApiResponse(description="Conversation not found"),
+        },
+        examples=[
+            OpenApiExample(
+                'Partial Update Request',
+                value={
+                    'title': 'New Title Only'
+                },
+                request_only=True,
+            ),
+        ]
+    )
+    def patch(self, request, *args, **kwargs):
+        """Partially update conversation title"""
+        return self.partial_update(request, *args, **kwargs)
 
 class ChatView(APIView):
     """
