@@ -1,12 +1,31 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse, OpenApiExample
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer, RegisterSerializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 User = get_user_model()
+
+class CustomTokenRefreshView(TokenRefreshView):
+    """
+    Refresh JWT token endpoint.
+    
+    Takes a refresh token and returns a new access token.
+    """
+    
+    @extend_schema(
+        summary="Refresh access token",
+        description="Get a new access token using a valid refresh token",
+        tags=['Authentication'],
+        responses={
+            200: OpenApiResponse(description="New access token generated"),
+            401: OpenApiResponse(description="Invalid or expired refresh token"),
+        }
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
