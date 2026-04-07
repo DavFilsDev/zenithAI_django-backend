@@ -3,8 +3,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
-import openai
-import os
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample, OpenApiResponse
 from drf_spectacular.types import OpenApiTypes
 from .services import gemini_service
