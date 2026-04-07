@@ -7,6 +7,10 @@ import openai
 import os
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample, OpenApiResponse
 from drf_spectacular.types import OpenApiTypes
+from .services import gemini_service
+import logging
+
+logger = logging.getLogger(__name__)
 
 class ConversationListView(generics.ListCreateAPIView):
     """
