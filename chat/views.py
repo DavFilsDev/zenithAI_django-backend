@@ -261,7 +261,7 @@ class ConversationDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class ChatView(APIView):
     """
-    Handle chat messages and AI interactions.
+    Handle chat messages and AI interactions using Google Gemini.
     
     This endpoint processes user messages and returns AI responses.
     It can create new conversations or continue existing ones.
@@ -270,7 +270,7 @@ class ChatView(APIView):
     1. Receive user message
     2. Find or create conversation
     3. Save user message to database
-    4. Generate AI response (simulated or real)
+    4. Generate AI response using Google Gemini
     5. Save AI response
     6. Return AI message data
     """
@@ -279,7 +279,7 @@ class ChatView(APIView):
     @extend_schema(
         summary="Send a message to the AI",
         description="""
-        Send a message to the AI and receive a response.
+        Send a message to the AI and receive a response using Google Gemini.
         
         **If conversation_id is provided:**
         - Continues an existing conversation
@@ -290,8 +290,7 @@ class ChatView(APIView):
         - Uses the first 50 characters of your message as the title
         - Returns the AI response with the new conversation context
         
-        The AI response is currently simulated. Future versions will integrate
-        with actual OpenAI API for real responses.
+        The AI uses Google Gemini 1.5 Flash model for fast, intelligent responses.
         """,
         tags=['Chat'],
         parameters=[
@@ -313,14 +312,14 @@ class ChatView(APIView):
         responses={
             200: OpenApiResponse(
                 response=MessageSerializer,
-                description='AI response message (simulated)',
+                description='AI response message from Gemini',
                 examples=[
                     OpenApiExample(
                         'Successful Response',
                         value={
                             'id': 1,
                             'role': 'assistant',
-                            'content': 'This is a simulated response. Integrate with OpenAI API for real responses.',
+                            'content': 'The capital of France is Paris. It is known as the "City of Light" and is famous for the Eiffel Tower, Louvre Museum, and Notre-Dame Cathedral.',
                             'tokens': 0,
                             'created_at': '2026-03-03T10:30:00Z'
                         }
@@ -357,7 +356,7 @@ class ChatView(APIView):
                 examples=[
                     OpenApiExample(
                         'Server Error',
-                        value={'error': 'Error details here'}
+                        value={'error': 'Failed to generate AI response. Please try again.'}
                     )
                 ]
             ),
@@ -381,7 +380,7 @@ class ChatView(APIView):
     )
     def post(self, request, conversation_id=None):
         """
-        Process a chat message and return AI response.
+        Process a chat message and return AI response from Google Gemini.
         
         Args:
             request: HTTP request object containing message data
@@ -418,13 +417,13 @@ class ChatView(APIView):
         )
         
         try:
-            # Get conversation history for context
-            messages = Message.objects.filter(conversation=conversation)
-            chat_history = [{'role': msg.role, 'content': msg.content} for msg in messages]
+            # Get conversation history for context (excluding the current message we just saved)
+            messages = Message.objects.filter(conversation=conversation).order_by('created_at')
+            # Build chat history for context
+            chat_history = [{'role': msg.role, 'content': msg.content} for msg in messages if msg.id != user_msg.id]
             
-            # TODO: Integrate with actual OpenAI API
-            # For now, we'll simulate a response
-            ai_response = "This is a simulated response. Integrate with OpenAI API for real responses."
+            # Generate AI response using Google Gemini
+            ai_response = gemini_service.generate_response(user_message, chat_history)
             
             # Save AI response
             ai_msg = Message.objects.create(
@@ -440,4 +439,8 @@ class ChatView(APIView):
             return Response(serializer.data, status=status_code)
             
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Chat error for user {request.user.id}: {str(e)}")
+            return Response(
+                {'error': 'Failed to generate AI response. Please try again.'}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
