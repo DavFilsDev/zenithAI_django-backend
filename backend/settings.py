@@ -173,12 +173,11 @@ AUTH_USER_MODEL = 'users.User'
 
 # Google Gemini AI Settings
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
-GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-2.0-flash-exp')
+GEMINI_MODEL = "gemini-2.5-flash"
 
-# Gemini configuration
 GEMINI_CONFIG = {
-    'temperature': 0.7,
-    'max_output_tokens': 2048,
-    'top_p': 0.95,
-    'top_k': 40,
+    "temperature": 0.7,
+    "max_output_tokens": 2048,
+    "top_p": 0.95,
+    "top_k": 40,
 }
