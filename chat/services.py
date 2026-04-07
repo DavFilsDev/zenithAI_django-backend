@@ -1,3 +1,4 @@
+# chat/services.py
 from google import genai
 from google.genai import types
 from django.conf import settings
@@ -8,13 +9,19 @@ logger = logging.getLogger(__name__)
 class GeminiService:
     """Service to handle Google Gemini AI interactions using new genai package"""
     
+    AVAILABLE_MODELS = [
+        'gemini-2.0-flash-exp',  # Latest, fast, great for code
+        'gemini-1.5-flash',       # Fast, efficient
+        'gemini-1.5-pro',         # Complex tasks
+    ]
+    
     def __init__(self):
         """Initialize Gemini with API key and configuration"""
         try:
             self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
             self.model = settings.GEMINI_MODEL
             self.available = True
-            logger.info(" Gemini AI service initialized successfully (google-genai)")
+            logger.info(f" Gemini AI service initialized with model: {self.model}")
         except Exception as e:
             self.available = False
             logger.error(f" Failed to initialize Gemini: {str(e)}")
@@ -46,6 +53,8 @@ class GeminiService:
             else:
                 prompt = message
             
+            logger.info(f"Generating response with model: {self.model}")
+            
             # Generate response using new API
             response = self.client.models.generate_content(
                 model=self.model,
@@ -61,8 +70,16 @@ class GeminiService:
             return response.text
         
         except Exception as e:
-            logger.error(f"Gemini API error: {str(e)}")
-            return f" Sorry, I encountered an error: {str(e)[:100]}"
+            error_msg = str(e)
+            logger.error(f"Gemini API error: {error_msg}")
+            
+            # Provide helpful error messages
+            if "404" in error_msg and "not found" in error_msg:
+                return f" Model '{self.model}' not found. Please check your GEMINI_MODEL setting. Available models: {', '.join(self.AVAILABLE_MODELS)}"
+            elif "API key" in error_msg:
+                return " Invalid API key. Please check your GEMINI_API_KEY setting."
+            else:
+                return f" Sorry, I encountered an error: {error_msg[:100]}"
 
 # Create a singleton instance
 gemini_service = GeminiService()
