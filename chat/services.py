@@ -9,22 +9,42 @@ logger = logging.getLogger(__name__)
 class GeminiService:
     """Service to handle Google Gemini AI interactions using new genai package"""
     
-    AVAILABLE_MODELS = [
-        'gemini-2.0-flash-exp',  # Latest, fast, great for code
-        'gemini-1.5-flash',       # Fast, efficient
-        'gemini-1.5-pro',         # Complex tasks
-    ]
+    # Available models with correct paths
+    AVAILABLE_MODELS = {
+        'gemini-2.0-flash-exp': 'gemini-2.0-flash-exp',
+        'gemini-1.5-flash': 'gemini-1.5-flash',
+        'gemini-1.5-pro': 'gemini-1.5-pro',
+    }
     
     def __init__(self):
         """Initialize Gemini with API key and configuration"""
         try:
             self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
-            self.model = settings.GEMINI_MODEL
+            self.model_name = settings.GEMINI_MODEL
             self.available = True
-            logger.info(f" Gemini AI service initialized with model: {self.model}")
+            logger.info(f"✅ Gemini AI service initialized with model: {self.model_name}")
+            
+            # Test the connection
+            self._test_connection()
+            
         except Exception as e:
             self.available = False
-            logger.error(f" Failed to initialize Gemini: {str(e)}")
+            logger.error(f"❌ Failed to initialize Gemini: {str(e)}")
+    
+    def _test_connection(self):
+        """Test if the model is accessible"""
+        try:
+            # Simple test prompt
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents="Test",
+                config=types.GenerateContentConfig(
+                    max_output_tokens=5,
+                )
+            )
+            logger.info(f"✅ Connection test successful with model: {self.model_name}")
+        except Exception as e:
+            logger.warning(f"⚠️ Model test failed: {str(e)}")
     
     def generate_response(self, message, conversation_history=None):
         """
@@ -38,7 +58,7 @@ class GeminiService:
             str: AI response text
         """
         if not self.available:
-            return " AI service is currently unavailable. Please try again later."
+            return "⚠️ AI service is currently unavailable. Please try again later."
         
         try:
             # Build context from conversation history
@@ -53,11 +73,11 @@ class GeminiService:
             else:
                 prompt = message
             
-            logger.info(f"Generating response with model: {self.model}")
+            logger.info(f"Generating response with model: {self.model_name}")
             
-            # Generate response using new API
+            # Generate response using the client
             response = self.client.models.generate_content(
-                model=self.model,
+                model=self.model_name,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     temperature=settings.GEMINI_CONFIG.get('temperature', 0.7),
@@ -74,12 +94,12 @@ class GeminiService:
             logger.error(f"Gemini API error: {error_msg}")
             
             # Provide helpful error messages
-            if "404" in error_msg and "not found" in error_msg:
-                return f" Model '{self.model}' not found. Please check your GEMINI_MODEL setting. Available models: {', '.join(self.AVAILABLE_MODELS)}"
-            elif "API key" in error_msg:
-                return " Invalid API key. Please check your GEMINI_API_KEY setting."
+            if "404" in error_msg:
+                return f"⚠️ Model '{self.model_name}' not accessible. Try using 'gemini-1.5-flash' instead."
+            elif "API key" in error_msg or "403" in error_msg:
+                return "⚠️ Invalid API key. Please check your GEMINI_API_KEY setting."
             else:
-                return f" Sorry, I encountered an error: {error_msg[:100]}"
+                return f"⚠️ Sorry, I encountered an error: {error_msg[:150]}"
 
 # Create a singleton instance
 gemini_service = GeminiService()
