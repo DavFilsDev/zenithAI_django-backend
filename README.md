@@ -69,7 +69,6 @@ CORS_ALLOWED_ORIGINS=http://localhost:3000
 ```
 
 2. **Database Setup**:
-   - Using Docker: `docker-compose up`
    - Manual: Create PostgreSQL database named `chatgpt_db`
 
 ### 🐳 Docker Deployment
