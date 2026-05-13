@@ -71,25 +71,6 @@ CORS_ALLOWED_ORIGINS=http://localhost:3000
 2. **Database Setup**:
    - Manual: Create PostgreSQL database named `chatgpt_db`
 
-### 🐳 Docker Deployment
-
-```bash
-# Build and start containers
-docker-compose up --build
-
-# Run migrations
-docker-compose exec backend python manage.py migrate
-
-# Create superuser
-docker-compose exec backend python manage.py createsuperuser
-
-# Stop containers
-docker-compose down
-
-# Stop and remove volumes
-docker-compose down -v
-```
-
 ### 📚 API Endpoints
 
 | Method | Endpoint | Description | Auth Required |
