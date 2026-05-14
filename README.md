@@ -49,8 +49,6 @@ chatgpt-backend/
 ├── users/           # User management app
 ├── requirements.txt # Python dependencies
 ├── .env.example     # Environment variables template
-├── docker-compose.yml # Docker setup
-└── Dockerfile       # Container configuration
 ```
 
 ### 🔧 Configuration
