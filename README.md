@@ -37,7 +37,6 @@ python manage.py runserver
 
 - Python 3.11+
 - PostgreSQL 15+
-- Docker & Docker Compose (optional)
 - Git
 
 ### 🏗️ Project Structure
