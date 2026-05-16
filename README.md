@@ -25,9 +25,6 @@ pip install -r requirements.txt
 cp .env.example .env
 # Edit .env file with your configuration
 
-# Run with Docker (recommended)
-docker-compose up --build
-
 # Or run locally (requires PostgreSQL running)
 python manage.py migrate
 python manage.py runserver
