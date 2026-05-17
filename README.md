@@ -153,7 +153,6 @@ python manage.py test chat
 
 - Django Admin: `/admin/`
 - Database: Use Django shell or pgAdmin
-- Logs: Check Docker logs or server logs
 
 ### 🤝 Contributing
 
