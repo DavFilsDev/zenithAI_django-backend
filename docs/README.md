@@ -1,7 +1,6 @@
 # ZenithAI Documentation
 
 ## 📚 Documentation Structure
-
 ```
 docs/
 ├── api/                                          # API documentation
