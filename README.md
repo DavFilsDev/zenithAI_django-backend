@@ -65,8 +65,8 @@ docs/
 1. Open Postman
 2. Click "Import" → "Upload Files"
 3. Select both:
-   - `api/zenith-ai-api.postman_collection.json`
-   - `api/zenith-ai-api.postman_environment.json`
+   - `docs/api/zenith-ai-api.postman_collection.json`
+   - `docs/api/zenith-ai-api.postman_environment.json`
 4. Select "Zenith AI - Development" environment from dropdown
 5. Start testing!
 
