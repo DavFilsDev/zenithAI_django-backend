@@ -52,10 +52,9 @@ chatgpt-backend/
 ```
 docs/
 ├── api/                                          # API documentation
-│   ├── zenith-ai-api.postman_collection.json       # Postman collection
-│   ├── zenith-ai-api.postman_environment.json      # Postman environment
-│   └── api-documentation.md                        # Manual API docs
-└── README.md                                     # This file
+   ├── zenith-ai-api.postman_collection.json       # Postman collection
+   ├── zenith-ai-api.postman_environment.json      # Postman environment
+   └── api-documentation.md                        # Manual API docs
 ```
 
 ### Quick Start
